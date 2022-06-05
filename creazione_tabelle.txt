@@ -1,0 +1,144 @@
+create table clienti(
+    CF char(16) primary key,
+    nome varchar(15),
+    cognome varchar(15),
+    indirizzo varchar(30),
+    telefono char(10),
+    email varchar(50),
+    anni_abbonamento integer,
+    invitante char(16),
+    foreign key (invitante) references clienti
+);
+create table carte(
+    codice_carta integer primary key,
+    anno integer,
+    punti integer,
+    CF char(16),
+    foreign key (CF) references clienti,
+    check (anno>1990)
+);
+create table corrieri(
+    CF char(16) primary key,
+    nome varchar(15),
+    cognome varchar(20),
+    indirizzo varchar(30),
+    telefono char(10),
+    email varchar(50),
+    azienda varchar(20)
+);
+create table spedizioni(
+    codice_spedizione integer primary key,
+    tipo varchar(20),
+    destinazione varchar(20),
+    CF char(16),
+    foreign key (CF) references corrieri
+);
+create table acquisti(
+    num_scontrino integer primary key,
+    giorno date,
+    importo numeric(7,2),
+    codice_carta integer,
+    codice_spedizione integer,
+    foreign key (codice_carta) references carte,
+    foreign key (codice_spedizione) references spedizioni
+);
+create table categorie(
+    codice_categoria integer primary key,
+    nome varchar(10),
+    descrizione varchar(50)
+);
+create table prodotti(
+    codice_barre integer primary key,
+    nome varchar(10),
+    PEGI integer,
+    prezzo numeric(6,2),
+    codice_categoria integer,
+    foreign key (codice_categoria) references categorie
+);
+create table compra(
+    numero_scontrino integer, 
+    codice_barre integer, 
+    quantità integer,
+    foreign key (numero_scontrino) references acquisti,
+    foreign key (codice_barre) references prodotti 
+);
+create table citta(
+    sigla char(2) primary key,
+    nome varchar(10)
+);
+create table dirigenti(
+    CF char(16) primary key,
+    nome varchar(10),
+    cognome varchar(10),
+    indirizzo varchar(20), 
+    telefono char(10),
+    email varchar(50),
+    qualifica varchar(10),
+    anni_esperienza integer
+);
+create table magazzini(
+    codice_magazzino integer primary key,
+    nome varchar(10),
+    sigla char(2),
+    CF char(16),
+    foreign key (sigla) references citta,
+    foreign key (CF) references dirigenti
+);
+create table contenuto(
+    codice_barre integer,
+    codice_magazzino integer,
+    quantità integer,
+    foreign key (codice_barre) references prodotti,
+    foreign key (codice_magazzino) references magazzini
+);
+create table filiali(
+    codice_filiale integer primary key,
+    nome varchar(10),
+    sigla char(2),
+    CF char(16),
+    foreign key (sigla) references citta,
+    foreign key (CF) references dirigenti
+);
+create table disponibile(
+    codice_barre integer,
+    codice_filiale integer,
+    quantità integer,
+    foreign key (codice_barre) references prodotti,
+    foreign key (codice_filiale) references filiali
+);
+create table magazzinieri(
+    CF char(16) primary key,
+    nome varchar(10),
+    cognome varchar(10),
+    indirizzo varchar(20), 
+    telefono char(10),
+    email varchar(50),
+    specializzazione varchar(10),
+    anni_esperienza integer
+);
+create table commessi(
+    CF char(16) primary key,
+    nome varchar(10),
+    cognome varchar(10),
+    indirizzo varchar(20), 
+    telefono char(10),
+    email varchar(50),
+    mansione varchar(10),
+    anni_esperienza integer
+);
+create table turni(
+    data_ora timestamp,
+    CF char(16),
+    codice_filiale integer,
+    foreign key (CF) references commessi,
+    foreign key(codice_filiale)references filiali,
+    primary key (data_ora,CF)
+);
+create table rotazioni(
+    data_ora timestamp,
+    CF char(16),
+    codice_magazzino integer,
+    foreign key (CF) references magazzinieri,
+    foreign key(codice_magazzino) references magazzini,
+    primary key (data_ora,CF)
+);
